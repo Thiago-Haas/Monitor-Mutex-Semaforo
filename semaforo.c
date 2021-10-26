@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <time.h>
 #include <semaphore.h>
 
 //os valores estão iguais ao enunciado, porém podem ser mudados para facilitar os testes
@@ -19,6 +20,8 @@
 #define KGRN "\x1B[32m"
 #define RESET "\x1B[0m"
 
+#define MILISSECOND_UNITY 1/1000
+clock_t start, end;
 sem_t mutex_gas;
 sem_t mutex_agua;
 sem_t mutex_energia;
@@ -69,6 +72,7 @@ void *consumidor_gas(){// a empresa consome dados
         sem_wait(&mutex_gas);
         for(int i=0;i<N_APARTAMENTOS;i++){
             a[i].amostra_gas=a[i].consumo_gas+a[i].amostra_gas;
+            fprintf(f,"Tempo:%ld",start);
             fprintf(f, "GAS consumo apartamento %d, %d\n", i, a[i].consumo_gas);
             //printf(KGRN"GAS consumo apartamento %d, %d\n"RESET, i, a[i].consumo_gas);
         }
@@ -81,7 +85,7 @@ void *consumidor_gas(){// a empresa consome dados
             }
             contador_amostra=0;
         }
-    }
+    }   
 }
 
 // os apartamentos produzem dados
@@ -132,7 +136,7 @@ void *produtor_energia(){
             valor_consumo = rand()%MAXIMO_CONSUMO;
             a[i].consumo_energia=valor_consumo;
         }
-        usleep(100000);
+        usleep(VELOCIDADE_ENERGIA);
         sem_post(&mutex_energia);
     }
 }
