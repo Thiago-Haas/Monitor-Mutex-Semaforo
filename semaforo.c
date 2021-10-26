@@ -20,8 +20,6 @@
 #define KGRN "\x1B[32m"
 #define RESET "\x1B[0m"
 
-#define MILISSECOND_UNITY 1/1000
-clock_t start, end;
 sem_t mutex_gas;
 sem_t mutex_agua;
 sem_t mutex_energia;
@@ -68,14 +66,17 @@ void *consumidor_gas(){// a empresa consome dados
     printf(KGRN"GAS Gerada thread do consumidor\n"RESET);
     int contador_amostra=0;
     int media=0;
+    int iteracao=0;
     while(1){
         sem_wait(&mutex_gas);
+        printf(KGRN"GAS Iteracao:%d\n"RESET,iteracao);
+        fprintf(f,"GAS Iteracao:%d\n",iteracao);
         for(int i=0;i<N_APARTAMENTOS;i++){
             a[i].amostra_gas=a[i].consumo_gas+a[i].amostra_gas;
-            fprintf(f,"Tempo:%ld",start);
-            fprintf(f, "GAS consumo apartamento %d, %d\n", i, a[i].consumo_gas);
+            fprintf(f,"GAS consumo apartamento %d, %d\n", i, a[i].consumo_gas);
             //printf(KGRN"GAS consumo apartamento %d, %d\n"RESET, i, a[i].consumo_gas);
         }
+        iteracao++;
         contador_amostra++;
         if(contador_amostra>TAM_AMOSTRA){
             for(int i=0;i<N_APARTAMENTOS;i++){
@@ -108,13 +109,17 @@ void *consumidor_agua(){// a empresa consome dados
     printf(KBLU"AGUA Gerada thread do consumidor\n"RESET);
     int contador_amostra=0;
     int media=0;
+    int iteracao=0;
     while(1){
         sem_wait(&mutex_agua);
+        printf(KBLU"AGUA Iteracao:%d\n"RESET,iteracao);
+        fprintf(f," AGUA Iteracao:%d\n",iteracao);
         for(int i=0;i<N_APARTAMENTOS;i++){
             a[i].amostra_agua=a[i].consumo_agua+a[i].amostra_agua;
             fprintf(f, "AGUA consumo apartamento %d, %d\n", i, a[i].consumo_agua);
             //printf(KBLU"AGUA consumo apartamento %d, %d\n"RESET, i, a[i].consumo_agua);
         }
+        iteracao++;
         contador_amostra++;
         if(contador_amostra>TAM_AMOSTRA){
             for(int i=0;i<N_APARTAMENTOS;i++){
@@ -147,13 +152,17 @@ void *consumidor_energia(){// a empresa consome dados
     printf(KYEL"ENERGIA Gerada thread do consumidor\n"RESET);
     int contador_amostra=0;
     int media=0;
+    int iteracao=0;
     while(1){       
         sem_wait(&mutex_energia);
+        printf(KYEL"ENERGIA Iteracao:%d\n"RESET,iteracao);
         for(int i=0;i<N_APARTAMENTOS;i++){
             a[i].amostra_energia=a[i].consumo_energia+a[i].amostra_energia;
             //printf(KYEL"ENERGIA consumo apartamento %d, %d\n"RESET, i, a[i].consumo_agua);
-            fprintf(f, "ENERGIA consumo apartamento %d, %d\n", i, a[i].consumo_agua);
+            fprintf(f," ENERGIA Iteracao:%d\n",iteracao);
+            fprintf(f, "ENERGIA consumo apartamento %d, %d\n", i, a[i].consumo_energia);
         }
+        iteracao++;
         contador_amostra++;
         if(contador_amostra>TAM_AMOSTRA){
             for(int i=0;i<N_APARTAMENTOS;i++){
