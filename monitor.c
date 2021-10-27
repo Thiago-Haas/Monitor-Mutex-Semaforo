@@ -19,9 +19,15 @@
 #define KGRN "\x1B[32m"
 #define RESET "\x1B[0m"
 
-pthread_mutex_t lock_gas;
-pthread_mutex_t lock_agua;
-pthread_mutex_t lock_energia;
+pthread_cond_t cond_gas = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t lock_gas = PTHREAD_MUTEX_INITIALIZER;
+
+pthread_cond_t cond_agua = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t lock_agua = PTHREAD_MUTEX_INITIALIZER;
+
+pthread_cond_t cond_energia = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t lock_energia = PTHREAD_MUTEX_INITIALIZER;
+
 
 struct apartamento{ //total de 6 apartamentos, 2 por andar
     int consumo_gas;
@@ -55,7 +61,7 @@ void *produtor_gas(){
             a[i].consumo_gas=valor_consumo;
         }
         usleep(VELOCIDADE_GAS);
-        pthread_mutex_unlock(&lock_gas);
+        pthread_cond_signal(&cond_gas);
     }
 }
 
@@ -67,7 +73,7 @@ void *consumidor_gas(){// a empresa consome dados
     int media=0;
     int iteracao=0;
     while(1){
-        pthread_mutex_lock(&lock_gas);
+        pthread_cond_wait(&cond_gas, &lock_gas);
         printf(KGRN"GAS Iteracao:%d\n"RESET,iteracao);
         fprintf(f,"GAS Iteracao:%d\n",iteracao);
         for(int i=0;i<N_APARTAMENTOS;i++){
@@ -98,7 +104,7 @@ void *produtor_agua(){
             a[i].consumo_agua=valor_consumo;
         }
         usleep(VELOCIDADE_AGUA);
-        pthread_mutex_unlock(&lock_agua);
+        pthread_cond_signal(&cond_agua);
     }
 }
 
@@ -110,7 +116,7 @@ void *consumidor_agua(){// a empresa consome dados
     int media=0;
     int iteracao=0;
     while(1){
-        pthread_mutex_lock(&lock_agua);
+        pthread_cond_wait(&cond_agua, &lock_agua);
         printf(KBLU"AGUA Iteracao:%d\n"RESET,iteracao);
         fprintf(f," AGUA Iteracao:%d\n",iteracao);
         for(int i=0;i<N_APARTAMENTOS;i++){
@@ -141,7 +147,7 @@ void *produtor_energia(){
             a[i].consumo_energia=valor_consumo;
         }
         usleep(VELOCIDADE_ENERGIA);
-        pthread_mutex_unlock(&lock_energia);
+        pthread_cond_signal(&cond_energia);
     }
 }
 
@@ -153,7 +159,7 @@ void *consumidor_energia(){// a empresa consome dados
     int media=0;
     int iteracao=0;
     while(1){       
-        pthread_mutex_lock(&lock_energia);
+        pthread_cond_wait(&cond_energia, &lock_energia);
         printf(KYEL"ENERGIA Iteracao:%d\n"RESET,iteracao);
         for(int i=0;i<N_APARTAMENTOS;i++){
             a[i].amostra_energia=a[i].consumo_energia+a[i].amostra_energia;
@@ -175,7 +181,6 @@ void *consumidor_energia(){// a empresa consome dados
 }
 
 int main(){
-    
     srand(time(NULL));
     
     inicializa_apartamentos(a);//Inicializa os valores da struct com 0
